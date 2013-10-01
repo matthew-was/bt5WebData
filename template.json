@@ -1,0 +1,14 @@
+plottable_data = {
+'type': '1d',
+'title': 'NG7 Data',
+'options': {
+'axes': {'xaxis': {'label':'A4'}, 'yaxis':
+{'label':'Counts'}},
+'series': [],
+'legend': {'show': False, 'placement': 'se'},
+'cursor': {'show': True, 'tooltipLocation':'se',
+'tooltipOffset': 0},
+},
+'clear_existing': True,
+'data': []
+}
