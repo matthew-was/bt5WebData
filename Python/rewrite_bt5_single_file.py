@@ -2,7 +2,7 @@ import math
 import icpformat as i
 import simplejson
 
-f = i.read("/Users/Matthew/Desktop/ED8801/ED81H001.bt5")
+f = i.read("/Users/Matthew/Desktop/Empty/EMPTY001.bt5")
 
 plottable_data = [{
             'type':'1d',
@@ -19,8 +19,8 @@ plottable_data = [{
         }]
 
 temp1 = f.filename
-temp1 = temp1.replace('.bt5','_mod.json')
-f_out = open(temp1, 'w')
+temp2 = temp1.replace('.bt5','_mod.json')
+f_out = open(temp2, 'w')
 
 plottable_data[0]["title"] = f.comment
 plottable_data[0]["options"]["axes"]["xaxis"]["label"]="a2"
@@ -36,5 +36,6 @@ while (i < f.points):
 	plottable_data[0]["data"][0].append([float(a2),int(total)])
 
 writable_data = simplejson.dumps(plottable_data)
+print writable_data
 f_out.write(writable_data)
 f_out.close()
