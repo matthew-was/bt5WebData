@@ -4,7 +4,7 @@ import simplejson
 import os
 import glob
 
-plottable_data = [{'type':'1d','title':'','options':{'axes':{'xaxis': {'label':''}, 'yaxis': {'label':''}},'series':[],'legend':{'show': False, 'placement': 'se'},'cursor':{'show': True, 'tooltipLocation':'se', 'tooltipOffset': 0},},'metadata':{},'clear_existing':True,'data':[[]]}]
+plottable_data = [{'type':'1d', 'title':'', 'options': {'axes': {'xaxis': {'label': ''}, 'yaxis': {'label': ''}}, 'series': [], 'legend': {'show': False, 'placement': 'se'}, 'cursor': {'show': True, 'tooltipLocation': 'se', 'tooltipOffset': 0}}, 'metadata': {}, 'clear_existing': True, 'data': [[]]}]
 
 dataDir = "/Users/Matthew/Desktop/Empty/"
 os.chdir(dataDir)

@@ -5,10 +5,41 @@ and open the template in the editor.
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
+        <title>Test BT5 Data Viewer</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="icpdata.js"></script>
+        <script type="text/javascript" src="bt5Data.js"></script>
+        <script type="text/javascript">
+             loadData = function() {
+                var file = document.getElementById('testfile').files[0]; // only one file allowed
+                var result;
+                filename = file.name;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    convertFile(this.result);
+                };                
+                reader.readAsText(file);
+            };
+            
+            window.onload = function() {
+                debug=false;
+                var fileinput = document.getElementById('testfile');
+                fileinput.onchange = loadData;
+            };
+            
+            convertFile = function(raw) {
+                ICP = new ICPParser();   
+                ICP.read(raw);
+                data = singleBT5(ICP);
+                console.log(data);
+            };
+        </script>
     </head>
     <body>
-        <div>TODO write content</div>
+        <div>
+            Load a test file:
+            <input type="file" id="testfile" name="testfile">
+        </div>
+        <div id="FileContent"></div>
     </body>
 </html>
