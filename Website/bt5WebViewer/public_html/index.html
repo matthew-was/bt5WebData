@@ -7,10 +7,15 @@ and open the template in the editor.
     <head>
         <title>Test BT5 Data Viewer</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <link rel="stylesheet" href="http://jqueryui.com/jquery-wp-content/themes/jqueryui.com/style.css" />
         <script src="icpdata.js"></script>
         <script type="text/javascript" src="bt5Data.js"></script>
-        <script type="text/javascript">
-             loadData = function() {
+        <script>
+            $(function() {
+            loadData = function() {
                 var file = document.getElementById('testfile').files[0]; // only one file allowed
                 var result;
                 filename = file.name;
@@ -25,6 +30,7 @@ and open the template in the editor.
                 debug=false;
                 var fileinput = document.getElementById('testfile');
                 fileinput.onchange = loadData;
+                testfunction();
             };
             
             convertFile = function(raw) {
@@ -33,12 +39,59 @@ and open the template in the editor.
                 data = singleBT5(ICP);
                 console.log(data);
             };
+            
+            testfunction = function() {
+                filelist = [];
+                for (i=0;i<5; i++) {
+                    bt5fileitem = "test"+i;
+                    filelist.push(bt5fileitem);
+                }
+                createButtons(filelist);
+            };
+            
+            createButtons = function(flist) {
+                var buttonlist = $('<div />', {'id':'blist1'});
+                var buttonitem;
+                var buttonlabel;
+                $('#data_table').empty();
+                for(i=0; i<flist.length; i++) {
+                    var tempval = 'bval'+i;
+                    buttonitem = $('<input />', {'type':'checkbox', 'id':flist[i], 'onchange':'testfunc(this.id)'});
+                    buttonlabel = $('<label />', {'for':flist[i], 'id':'bval'+[i]});
+                    buttonlist.append(buttonitem);
+                    buttonlist.append(buttonlabel);
+                    buttonlist.append($('<br>'));
+                }
+                $('#data_table').empty();
+                $('#data_table').append(buttonlist);
+                for(j=0; j<flist.length; j++) {
+                    document.getElementById('bval'+[j]).innerHTML = (flist[j]);
+                }
+                $( "#data_table" ).buttonset();
+            };
+                        
+            testfunc = function(val) {
+                console.log(val + ' is ' + document.getElementById(val).checked);
+            };
+        });
         </script>
+        <style>
+            div#bval {display:block}
+        </style>
     </head>
     <body>
         <div>
             Load a test file:
             <input type="file" id="testfile" name="testfile">
+            <input type="checkbox" id="testbox" /><label for="testbox">test</label>
+        </div>
+        <div id="format">
+            <input type="checkbox" id="check1" /><label for="check1">B</label>
+            <input type="checkbox" id="check2" /><label for="check2">I</label>
+            <input type="checkbox" id="check3" /><label for="check3">U</label>
+        </div>
+        <div id="data_table">
+            <div id="blist1"></div>
         </div>
         <div id="FileContent"></div>
     </body>

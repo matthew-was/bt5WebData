@@ -299,11 +299,11 @@ function get_quoted_tokens(line) {
     var c;
     for (var i=0; i<line.length;  i++) {
         c = line[i];
-        if (c === "'") {
+        if (c == "'") {
             if (inquote) {
                 tokens.push(curtoken.join(""));
                 curtoken = null;
-                inquote = false;
+                inquote = false
             }
             else {
                 curtoken = [];
@@ -314,7 +314,7 @@ function get_quoted_tokens(line) {
             curtoken.push(c);
         }
         else if (isspace(c)) {
-            if (curtoken !== null) {
+            if (curtoken != null) {
                 tokens.push(curtoken.join(""));
                 curtoken = null;
             }
@@ -329,7 +329,7 @@ function get_quoted_tokens(line) {
         }
     }
 
-    return tokens;
+    return tokens
 }
 
 function ICPParser() {
@@ -344,14 +344,14 @@ function ICPParser() {
         this.parseheader(file);
 
         //read columns and detector images if available
-        this.readcolumns(file);
+        this.readcolumns(file)
         this.PSD = (this.detector.length > 0);
 
         // fill in missing motor columns
         //self.genmotorcolumns()
 
         //file.close()
-    };
+    }
     
     this.parseheader = function(contents) {
         /*
@@ -359,19 +359,23 @@ function ICPParser() {
         */
         // Determine FileType
         this.linenumber = 0;
+        if ( this.checkfpheader(contents) == true ) {
+            // test for findpeak scan, and process as such
+            return;
+        }
         this.readheader1(contents);
-        if (this.scantype === 'I') {
+        if (this.scantype == 'I') {
             this.readiheader(contents);
             this.readmotors(contents);
         }
         else if (['Q','T'].indexOf(this.scantype) > -1) {
             this.readqheader(contents);
         }
-        else if (this.scantype === 'B') {
+        else if (this.scantype == 'B') {
             this.readqheader(contents);
             this.readmotors(contents);
         }
-        else if (this.scantype === 'R') {
+        else if (this.scantype == 'R') {
             this.readrheader(contents);
             this.readmotors(contents);
         }
@@ -379,7 +383,7 @@ function ICPParser() {
             throw "Unknown scan type: " + this.scantype;
         }
         this.readcolumnheaders(contents);
-    };
+    }
     
     this.readheader1 = function(contents) {
         //"""
@@ -413,7 +417,24 @@ function ICPParser() {
             this.comment = line.trimRight();
             this.polarization = "";
         }
-    };
+    }
+    
+    this.checkfpheader = function(contents) {
+        // read findpeak header
+        var patt = /^\s*((?:Motor\s+no\.\s+\d+\s+)+)(Intensity)\s+(.*)/
+        var line = contents[this.linenumber];
+        var isFP = patt.test(line);
+        if (isFP) {
+            this.linenumber++; // we are going to process!
+            var parts = line.match(patt);
+            var motorstr = parts[1].replace(/Motor\s+no\.\s+/g, 'a'); // parts[0] is whole match
+            this.columnnames = motorstr.trim().split(/\s+/);
+            this.columnnames.push("counts"); // replacing Intensity
+            this.date = new Date(parts[3]);
+            this.scantype = "FP";
+        }
+        return isFP
+    }
     
     this.readiheader = function(contents) {
         /*
@@ -433,7 +454,7 @@ function ICPParser() {
         this.Tstart = parseFloat(tokenized[8]);
         this.Tstep = parseFloat(tokenized[9]);
         this.Hfield = parseFloat(tokenized[10]);
-    };
+    }
     
     this.readrheader = function(contents) {
         /*
@@ -456,7 +477,7 @@ function ICPParser() {
         this.Hfield = parseFloat(tokenized[6]);
         this.numDet = parseFloat(tokenized[7]);
         this.SclFac = parseFloat(tokenized[8]);
-    };
+    }
     
     this.readqheader = function(contents) {
         /*
@@ -499,7 +520,7 @@ function ICPParser() {
         this.hfield = parseFloat(tokenized[6]);
         //skip line describing fields
         this.linenumber++;
-    };
+    }
     
     this.readmotors = function(contents) {
         /*
@@ -516,16 +537,16 @@ function ICPParser() {
         //self.motor = MotorSet()
         while (true) {  // read until 'Mot:' line
             var words = (contents[this.linenumber++]).trim().split(/\s+/);
-            if (words[0] === 'Mot:') { break; }
+            if (words[0] == 'Mot:') { break; }
             var motor = {};
-            motor.start = parseFloat(words[1]);
-            motor.step = parseFloat(words[2]);
-            motor.stop = parseFloat(words[3]);
+            motor.start = parseFloat(words[1])
+            motor.step = parseFloat(words[2])
+            motor.stop = parseFloat(words[3])
             var name = (/^[0-9]/.test(words[0])) ? 'a' + words[0] : words[0]; // words[0] if not words[0].isdigit() else 'a' + words[0]
             // setattr(self.motor, name, motor)
             this.motor[name] = motor;
         }
-    };
+    }
 
     this.readcolumnheaders = function(contents) {
         /*
@@ -553,7 +574,7 @@ function ICPParser() {
             line = line.replace(os, ns);
         }
         this.columnnames = line.trim().split(/\s+/);
-    };
+    }
 
     this.readcolumns = function(contents) {
         /*
@@ -568,7 +589,7 @@ function ICPParser() {
         this.detector = data.blocks;
         this.counts = (this.detector.length > 0) ? this.detector : this.column.counts;
         this.points = this.column.counts.length;
-    };
+    }
     
     this.readdata = function(fh) {
         /*
@@ -611,7 +632,7 @@ function ICPParser() {
 
             // If last line ended with a comma then the last number for the
             // the current block is on the current line.
-            if ((b.length > 0) && (b.slice(-1)[0]).trimRight().slice(-1) === ",") {
+            if ((b.length > 0) && (b.slice(-1)[0]).trimRight().slice(-1) == ",") {
                 b.push(line);
                 line = fh[this.linenumber++];
                 linenum += 1;
@@ -653,12 +674,12 @@ function ICPParser() {
         // Convert data to arrays
         //X = N.array(rows, 'd')
         //Z = N.array(blocks)
-        return {rows: rows, blocks: blocks, columns: columns};
-    };
+        return {rows: rows, blocks: blocks, columns: columns}
+    }
     
     this.get_plottable = function(xcol, ycol) {
-        var xcol = (xcol === null) ? this.columnnames[0] : xcol;
-        var ycol = (ycol === null) ? 'counts' : ycol;
+        var xcol = (xcol == null) ? this.columnnames[0] : xcol;
+        var ycol = (ycol == null) ? 'counts' : ycol;
         var data = [];
         for (var i=0; i<this.column.counts.length; i++) {
             data.push([this.column[xcol][i], this.column[ycol][i]]);
@@ -670,30 +691,31 @@ function ICPParser() {
             'options': {
                 'axes': {
                     'xaxis': {'label': xcol},
-                    'yaxis': {'label': ycol}
-                }
+                    'yaxis': {'label': ycol},
+                },
+                'series': [{'label': this.filename}]
             },
             'xlabel': 'X',
             'ylabel': 'Y', 
             'data': [data]
         }; 
         
-        return plottable_data;
-    };
+        return plottable_data 
+    }
 
     return this;
 }
 
 function parsematrix(s, shape, linenum) {
-    var linenum = (linenum === null)? 0 : linenum;
+    var linenum = (linenum == null)? 0 : linenum;
     /*
     Parse a string into a matrix.  Provide a shape parameter if you
     know the expected matrix size.
     */
-    var singleArgParseInt = function(x) { return parseInt(x, 10); };
+    var singleArgParseInt = function(x) { return parseInt(x, 10); }
     var z = s.split(/\s*[,]\s*/).map(singleArgParseInt);
-    if (shape !== null && shape !== z.length) {
+    if (shape != null && shape != z.length) {
         throw "Inconsistent dims at line " + linenum.toFixed();
     }
-    return z;
+    return z
 }

@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>ICP data reader</title>
+  <title>BT5 Data Viewer</title>
   <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
   <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.css" />
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script> 
@@ -42,99 +42,143 @@
     current_instr = null;
     plots = {};
     colorbars = {};
-    data_path = ["ncnrdata/bt5/201308/2013/wasbrough/sep2"];
+    data_path = ["ncnrdata/bt5"];
     itemlist = [];
     datadir = [];
-    BT5JSON = {};
     BT5Obj = {};
-    
+    itemnumber = 0;
+    finishcount = 0;
 
     set_data = function(data) {
         //console.log(readNCNRData(data));
         ICP = new ICPParser();
         ICP.read(data);
-        showSANSData(singleBT5(ICP));
+        showSANSData(ICP.get_plottable());
         //parseheader(data.split('\n'));
     };
- 
-    /*
-    var loadData = function() {
-        var file = document.getElementById('sansfile').files[0]; // only one file allowed
-        datafilename = file.name;
-        var result = null;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var data = new Uint8Array(this.result);
-            set_data(data);
-        };
-        reader.readAsText(file);
-        current_instr = "NG7SANS";
-    };
-    */
     
-    var getData = function(url) {
+    bt5_data = function(file) {
+        showSANSData(BT5Obj[file]);
+    };
+ 
+     var getData = function(url) {
         $.get(url, set_data);
     };
     
-    getItems = function() {
-       updateFileBrowserPane("navigation", datadir);
-       itemlist = itemlist.sort();
-       bt5list = [];
-       for (var i=0; i<itemlist.length; i++) {
-           tempitem = itemlist[i].split(" ", 1);
-           tempitem = tempitem.toString();
-           if (tempitem.indexOf("bt5", tempitem.length-3) !== -1) {
-                if (tempitem.indexOf("fpx") !== 0 ) {
-                    bt5item = document.createElement('li');
-                    bt5item.classList.add('bt5item');
-                    bt5item.textContent = tempitem;
-                    bt5list.push(bt5item);
-                }
-           }
-            $('#data_table').empty();
-            $('#data_table').append(bt5list);
-       }
-       batchBT5(bt5list);
-    };
+    function predicatBy(prop){
+        return function(a,b){
+            if( a[prop] > b[prop]){
+                return 1;
+            }else if( a[prop] < b[prop] ){
+                return -1;
+            }
+            return 0;
+        };
+    }
+
     
-    batchBT5 = function(filelist) {
-        BT5Obj = {};
-        datalist = "http://ncnr.nist.gov/pub/" + datadir.join("/") + "/";
-        for(var i=0;i<datalist.length;i++) {
-            file1 = filelist[i].textContent;
-            $.get(datalist+file1, batchBT52);   
-        }
-    };
-    
-    batchBT52 = function(data) {
-        BT5Obj;
-        BT5 = new ICPParser();
+    batchBT5 = function(data) {
+        var BT5 = new ICPParser();
         BT5.read(data);
-        BT5JSON = singleBT5(BT5);
-        console.log(BT5.filename);
+        var BT5JSON = singleBT5(BT5);
         
-        temptitle = BT5JSON["title"];
-        title = temptitle.substring(0,5);
+        var temptitle = BT5JSON["title"];
+        var title = temptitle.substring(0,5);
          
         if (title in BT5Obj) {
-            console.log("match");
+            for(var j=0;j<BT5JSON["data"][0].length;j++) {
+                BT5Obj[title]["data"][0].push(BT5JSON["data"][0][j]);
+            };
         } else {
-            console.log("no match");
             BT5Obj[title] = BT5JSON;
         }
-        
-
-        /*
-        for(var j=0;j<BT5Obj.length;j++) {
-            if (BT5Obj[j] === title) {
-                console.log("match");
-            }
-            console.log("no match");
-        }
-        */
-       
-        return 1;
+        BT5Obj[title]["data"][0].sort(predicatBy(0));
+        finishcount = finishcount+1;
+        if (finishcount === itemnumber) {
+                var buttonlist = $('<div />', {'id':'blist1'});
+                var buttonitem;
+                var buttonlabel;
+                $('#data_table').empty();
+                var i = 0;
+                for(var k in BT5Obj) {
+                    var tempval = 'bval'+i;
+                    buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
+                    buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
+                    buttonlist.append(buttonitem);
+                    buttonlist.append(buttonlabel);
+                    buttonlist.append($('<br>'));
+                    i++;
+                }
+                $('#data_table').empty();
+                $('#data_table').append(buttonlist);
+                reload_button.value = "Reload";
+                l = 0;
+                for(var j in BT5Obj) {
+                    document.getElementById('bval'+[l]).innerHTML = (j);
+                    l++;
+                }
+                $( "#data_table" ).buttonset();
+         }
     };
+    
+    compilePlot = function() {
+        var items = $('.bitems');
+        var list = [];
+        for(var i = 0; i<items.length; i++) {
+            if(items[i].checked === true) {
+                list.push(items[i].id);
+            }
+        }
+        dataObj = {
+            'type': '1d',
+            'title': '',
+            'metadata': {},
+            'options': {
+                'axes': {
+                    'xaxis': {'label': "a2"},
+                    'yaxis': {'label': "Counts x 10^6 / Monitor"}
+                },
+                'series': []
+            },
+            'xlabel': 'X',
+            'ylabel': 'Y',
+            'data': []
+        };
+        for (j=0; j<list.length; j++) {
+            dataObj['options']['series'].push({});
+            dataObj['options']['series'][j].label = BT5Obj[list[j]].title;
+            dataObj['data'].push(BT5Obj[list[j]]['data'][0]);
+        }
+        showSANSData(dataObj);
+    };
+   
+    getItems = function() {
+        reload_button.value = "Working";
+        BT5Obj = {};
+        finishcount = 0;
+        updateFileBrowserPane("navigation", datadir);
+        itemlist = itemlist.sort();
+        var bt5list = [];
+        for (var i=0; i<itemlist.length; i++) {
+            var tempitem = itemlist[i].split(" ", 1);
+            tempitem = tempitem.toString();
+            if (tempitem.indexOf("bt5", tempitem.length-3) !== -1) {
+                 if (tempitem.indexOf("fpx") !== 0 ) {
+                     var bt5item = document.createElement('li');
+                     bt5item.classList.add('bt5item');
+                     bt5item.textContent = tempitem;
+                     bt5list.push(bt5item);
+                 }
+            }
+        }
+        itemnumber = bt5list.length;
+        var datalist = "http://ncnr.nist.gov/pub/" + datadir.join("/") + "/";
+        for(var i=0;i<bt5list.length;i++) {
+            $.get(datalist+bt5list[i].textContent, batchBT5);
+        }
+        return("test");
+    };
+    
     
     //var fileinput = document.getElementById('sansfile');
     //fileinput.onchange = loadData;
@@ -148,11 +192,21 @@
         cell.append(wrapper);
         wrapper.append($('<div />', {'id': 'plot1', 'class': 'plotdiv'}));
         wrapper.append($('<div />', {'id': 'plot0', 'class': 'plotdiv', 'style': "display:none;"}));
-        var transform = $('<label />').text('logY').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logtransform'}));
+        var transform = $('<label />').text('log').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logtransform'}));
         cell.append(transform);
         cell.append($('<span />', {'id': 'eta1'}));
         $('#'+target).append(cell);
     }
+    
+    function updateTransform(ev) {
+        for (var p in plots); {
+            var logselected = logtransform.checked;
+            var transform = logselected? 'log' : 'lin';        
+            plots[p].setTransform(transform, 'xaxis');
+            plots[p].setTransform(transform, 'yaxis');
+        }
+    }
+
     
     //createPlotRegion('plot_region');
     
@@ -161,6 +215,7 @@
         for (var p in plots) {
             plots[p].replot();
         }
+        //updateTransform();
     };
     
     window.onresize();
@@ -235,7 +290,7 @@
             });
             $('#' + target_id).empty();
             $('#' + target_id).append(filebrowser);
-        }   
+        } 
         return handler;
     }
     
@@ -310,14 +365,15 @@
                     pl = null;
                 }
             });
+            updateTransform();
         
     };
     
     createPlotRegion('plot_region');
+    $('.transform').change(updateTransform);
    
   });
   </script>
-</head>
 <style>
 html,body{height:100%;margin:0;padding:0}
 body{font: 76% arial,sans-serif; min-height:100%;}
@@ -332,10 +388,25 @@ div#footer{background: #333;color: #FFF}
 div#footer p{margin:0;padding:5px 10px}
 
 div#outer{float:right;width:100%;margin-left:-300px;}
-div#content{margin-left:600px}
+div#content{margin-left:450px}
 /*div#navigation{float:left;width:300px;overflow:auto;}*/
 div#navigation{position:absolute;top:80px;left:0px;right:0px;bottom:50px;width:300px;overflow:auto;}
-div#data{position:absolute;top:80px;left:300px;right:0px;bottom:50px;width:300px;overflow:auto;}
+div#data{position:absolute;top:80px;left:300px;right:0px;bottom:50px;width:150px;overflow:auto;}
+
+label.blabel {width:75px;}
+
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+background:white;
+}
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active {
+    background: #F39814; 
+    color: white; 
+}
+
 li.subdiritem { 
     list-style-type: none; 
     cursor: pointer;
@@ -348,7 +419,12 @@ li.fileitem {
 }
 /*div#footer{clear:both;width:100%}*/
 div#footer{overflow:hidden; position:absolute; bottom:0; left:0; right:0px; height:50px; width:100%;}
+div.plotdiv { 
+    margin-right: 75px;
+    margin-left: 25px;
+}
 </style>
+</head>
 <body>
 
 <div id="header" style="background-color:#FFA500;">
@@ -357,7 +433,7 @@ div#footer{overflow:hidden; position:absolute; bottom:0; left:0; right:0px; heig
     <div id = navigation></div>
     <div id="content">
     <div id="data">
-        <input type="button" value="Reload" onclick=getItems();>
+        <input id="reload_button" type="button" value="Reload" onClick=getItems();>
         <div id="data_table"></div>
     </div>
     <div id="plot_region"></div>
