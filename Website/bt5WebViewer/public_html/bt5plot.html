@@ -76,6 +76,9 @@
         };
     }
 
+    $( "#reload_button" ).click(function() {
+        getItems();
+    });
     
     batchBT5 = function(data) {
         var BT5 = new ICPParser();
@@ -433,7 +436,7 @@ div.plotdiv {
     <div id = navigation></div>
     <div id="content">
     <div id="data">
-        <input id="reload_button" type="button" value="Reload" onClick=getItems();>
+        <input id="reload_button" type="button" value="Reload">
         <div id="data_table"></div>
     </div>
     <div id="plot_region"></div>
