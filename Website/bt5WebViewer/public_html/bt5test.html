@@ -22,7 +22,7 @@
     <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.heatmapRenderer.js"></script>
     <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.colorbarRenderer.js"></script>
 
-    <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/plotting_api2.js"></script>
+    <script type="text/javascript" src="plotting_api2.js"></script>
     <script src="http://ncnr.nist.gov/instruments/magik/js/geturlvars.js"></script>
 <!--    <script src="http://ncnr.nist.gov/instruments/magik/sans_data.js"></script>-->
     <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/interactors/interactors.js"></script>
@@ -195,16 +195,15 @@
         cell.append(wrapper);
         wrapper.append($('<div />', {'id': 'plot1', 'class': 'plotdiv'}));
         wrapper.append($('<div />', {'id': 'plot0', 'class': 'plotdiv', 'style': "display:none;"}));
-        var xtransform = $('<label />').text('logX').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logtransform', 'axis': 'xaxis'}));
+        var xtransform = $('<label />').text('logX').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logxtransform', 'axis': 'xaxis'}));
         cell.append(xtransform);
-        var ytransform = $('<label />').text('logY').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logtransform', 'axis': 'yaxis'}));
+        var ytransform = $('<label />').text('logY').append($('<input />', {'type': 'checkbox', 'class': 'transform', 'id': 'logytransform', 'axis': 'yaxis'}));
         cell.append(ytransform);
         cell.append($('<span />', {'id': 'eta1'}));
         $('#'+target).append(cell);
     }
     
     function updateTransform(ev) {
-        console.log(ev);
         var logselected = ev.target.checked;
         var axis = ev.target.getAttribute('axis');
         var transform = logselected? 'log' : 'lin';
@@ -311,7 +310,7 @@
                   $( ".ui-selected", this ).each(function(i, item) {
                     //var index = $( "#selectable li" ).index( this );
                     //result.append( " #" + ( index + 1 ) );
-                    console.log(i, item);
+                    //console.log(i, item);
                   });
                   var selected = $(".ui-selected", this);
                   if (selected.length > 0) {
@@ -339,8 +338,14 @@
         current_target = 'plot0';
         var cell_target = 'cell' + (i+1).toFixed();
         var eta_target = 'eta' + (i+1).toFixed();
-        var logselected = $('#' + cell_target).find('input')[0].checked;
-        var transform = logselected? 'log' : 'lin';
+        //var logselected = $('#' + cell_target).find('#logytransform')[0].checked;
+        //var transform = logselected? 'log' : 'lin';
+        transform={};
+        for (j=0;j<$('#' + cell_target).find('input').length; j++){
+            var loginput = $('#' + cell_target).find('input')[j].checked;
+            var axis = $('#' + cell_target).find('input')[j].getAttribute('axis');
+            transform[axis] = loginput;
+        }
         
         if (plots && plots[next_target] && plots[next_target].destroy) { plots[next_target].destroy(); }
         if (colorbars && colorbars[next_target] && colorbars[next_target].destroy) { colorbars[next_target].destroy(); }
@@ -464,6 +469,8 @@ div#footer{overflow:hidden; position:absolute; bottom:0; left:0; right:0px; heig
   #filebrowser li { margin: 3px; padding: 0em 0.4em; font-size: 1.4em; }
   #dirbrowser { list-style-type: none; margin: 0; padding: 0; }
   #dirbrowser li { margin: 3px; padding: 0em 0.4em; font-size: 1.4em; }
+  
+  div.patheditor {font-size: 1.4em; }
 </style>
 </head>
 <body>
