@@ -87,41 +87,45 @@
         
         var temptitle = BT5JSON["title"];
         var title = temptitle.substring(0,5);
-         
-        if (title in BT5Obj) {
-            for(var j=0;j<BT5JSON["data"][0].length;j++) {
-                BT5Obj[title]["data"][0].push(BT5JSON["data"][0][j]);
-            };
-        } else {
-            BT5Obj[title] = BT5JSON;
+        
+        if (BT5JSON["data"][0].length === 0) {
+            console.log(BT5.filename + " has no data");
+        } else {    
+            if (title in BT5Obj) {
+                for(var j=0;j<BT5JSON["data"][0].length;j++) {
+                    BT5Obj[title]["data"][0].push(BT5JSON["data"][0][j]);
+                };
+            } else {
+                BT5Obj[title] = BT5JSON;
+            }
+            BT5Obj[title]["data"][0].sort(predicatBy(0));
         }
-        BT5Obj[title]["data"][0].sort(predicatBy(0));
         finishcount = finishcount+1;
         if (finishcount === itemnumber) {
-                var buttonlist = $('<div />', {'id':'blist1'});
-                var buttonitem;
-                var buttonlabel;
-                $('#data_table').empty();
-                var i = 0;
-                for(var k in BT5Obj) {
-                    var tempval = 'bval'+i;
-                    buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
-                    buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
-                    buttonlist.append(buttonitem);
-                    buttonlist.append(buttonlabel);
-                    buttonlist.append($('<br>'));
-                    i++;
-                }
-                $('#data_table').empty();
-                $('#data_table').append(buttonlist);
-                reload_button.value = "Reload";
-                l = 0;
-                for(var j in BT5Obj) {
-                    document.getElementById('bval'+[l]).innerHTML = (j);
-                    l++;
-                }
-                $( "#data_table" ).buttonset();
-         }
+            var buttonlist = $('<div />', {'id':'blist1'});
+            var buttonitem;
+            var buttonlabel;
+            $('#data_table').empty();
+            var i = 0;
+            for(var k in BT5Obj) {
+                var tempval = 'bval'+i;
+                buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
+                buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
+                buttonlist.append(buttonitem);
+                buttonlist.append(buttonlabel);
+                buttonlist.append($('<br>'));
+                i++;
+            }
+            $('#data_table').empty();
+            $('#data_table').append(buttonlist);
+            reload_button.value = "Reload";
+            l = 0;
+            for(var j in BT5Obj) {
+                document.getElementById('bval'+[l]).innerHTML = (j);
+                l++;
+            }
+            $( "#data_table" ).buttonset();
+        }
     };
     
     compilePlot = function() {
