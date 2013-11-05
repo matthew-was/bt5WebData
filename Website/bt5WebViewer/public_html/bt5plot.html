@@ -142,30 +142,32 @@
         };
         $('#metadivsub').empty();
         var metatable = "<table id='metatable'>";
-        metatable += "<tr><th></th><th colspan=3>Temperature</th><th colspan=3>Temperature</th></tr>";
+        metatable += "<tr><th></th><th colspan=3>Temperature</th><th colspan=3>Magnetic Field</th></tr>";
         metatable += "<tr><td>File</td><td>Temp Max</td><td>Median Temp</td><td>Temp Min</td><td>H Field Max</td><td>Median H Field</td><td>H Field Min</td></tr>";
         for (j=0; j<list.length; j++) {
             dataObj['options']['series'].push({});
             dataObj['options']['series'][j].label = BT5Obj[list[j]].title;
             dataObj['data'].push(BT5Obj[list[j]]['data'][0]);
             var md = BT5Obj[list[j]].metadata;
-            if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false) {
-                if (md.tempmax === md.tempmin) {
-                    metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>-</td><td>"+ Math.round((md.tempsum / md.tpoints) *10000)/10000 + "</td><td>-</td>";
+            if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false && isNaN(BT5Obj[list[j]].metadata.hfsum) === false){
+                if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false) {
+                    if (md.tempmax === md.tempmin) {
+                        metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>-</td><td>"+ Math.round((md.tempsum / md.tpoints) *10000)/10000 + "</td><td>-</td>";
+                    } else {
+                        metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>" + md.tempmax + "</td><td>"+ Math.round((md.tempsum / md.tpoints) *10000)/10000 + "</td><td>" + md.tempmin + "</td>";                    
+                    }
                 } else {
-                    metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>" + md.tempmax + "</td><td>"+ Math.round((md.tempsum / md.tpoints) *10000)/10000 + "</td><td>" + md.tempmin + "</td>";                    
+                    metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>-</td><td>-</td><td>-</td>";
                 }
-            } else {
-                metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>-</td><td>-</td><td>-</td>";
-            }
-            if (isNaN(BT5Obj[list[j]].metadata.hfsum) === false) {
-                if (md.hfmax === md.hfmin) {
-                    metatable += "<td>-</td><td>"+ Math.round((md.hfsum / md.hpoints) *10000)/10000 + "</td><td>-</td></tr>";
+                if (isNaN(BT5Obj[list[j]].metadata.hfsum) === false) {
+                    if (md.hfmax === md.hfmin) {
+                        metatable += "<td>-</td><td>"+ Math.round((md.hfsum / md.hpoints) *10000)/10000 + "</td><td>-</td></tr>";
+                    } else {
+                        metatable += "<td>" + md.hfmax + "</td><td>"+ Math.round((md.hfsum / md.hpoints) *10000)/10000 + "</td><td>" + md.hfmin + "</td></tr>";                    
+                    }
                 } else {
-                    metatable += "<td>" + md.hfmax + "</td><td>"+ Math.round((md.hfsum / md.hpoints) *10000)/10000 + "</td><td>" + md.hfmin + "</td></tr>";                    
+                    metatable += "<td>-</td><td>-</td><td>-</td></tr>";
                 }
-            } else {
-                metatable += "<td>-</td><td>-</td><td>-</td></tr>";
             }
         }
         metatable += "</table>";
