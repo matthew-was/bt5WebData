@@ -65,17 +65,6 @@
         $.get(url, set_data);
     };
     
-    function predicatBy(prop){
-        return function(a,b){
-            if( a[prop] > b[prop]){
-                return 1;
-            }else if( a[prop] < b[prop] ){
-                return -1;
-            }
-            return 0;
-        };
-    }
-
     $( "#reload_button" ).click(function() {
         getItems();
     });
@@ -83,46 +72,50 @@
     batchBT5 = function(data) {
         var BT5 = new ICPParser();
         BT5.read(data);
-        var BT5JSON = singleBT5(BT5);
-        
+        BT5JSON = singleBT5(BT5);
+                
         var temptitle = BT5JSON["title"];
         var title = temptitle.substring(0,5);
-         
-        if (title in BT5Obj) {
-            for(var j=0;j<BT5JSON["data"][0].length;j++) {
-                BT5Obj[title]["data"][0].push(BT5JSON["data"][0][j]);
-            };
-        } else {
-            BT5Obj[title] = BT5JSON;
+        
+        if (BT5JSON["data"][0].length !== 0) {
+            compileBT5Object(BT5Obj, BT5JSON, title);
         }
-        BT5Obj[title]["data"][0].sort(predicatBy(0));
         finishcount = finishcount+1;
         if (finishcount === itemnumber) {
-                var buttonlist = $('<div />', {'id':'blist1'});
-                var buttonitem;
-                var buttonlabel;
-                $('#data_table').empty();
-                var i = 0;
-                for(var k in BT5Obj) {
-                    var tempval = 'bval'+i;
-                    buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
-                    buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
-                    buttonlist.append(buttonitem);
-                    buttonlist.append(buttonlabel);
-                    buttonlist.append($('<br>'));
-                    i++;
-                }
-                $('#data_table').empty();
-                $('#data_table').append(buttonlist);
-                reload_button.value = "Reload";
-                l = 0;
-                for(var j in BT5Obj) {
-                    document.getElementById('bval'+[l]).innerHTML = (j);
-                    l++;
-                }
-                $( "#data_table" ).buttonset();
-         }
+            var buttonlist = $('<div />', {'id':'blist1'});
+            var buttonitem;
+            var buttonlabel;
+            $('#data_table').empty();
+            var i = 0;
+            for(var k in BT5Obj) {
+                var tempval = 'bval'+i;
+                buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
+                buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
+                buttonlist.append(buttonitem);
+                buttonlist.append(buttonlabel);
+                buttonlist.append($('<br>'));
+                i++;
+            }
+            $('#data_table').empty();
+            $('#data_table').append(buttonlist);
+            reload_button.value = "Reload";
+            l = 0;
+            for(var j in BT5Obj) {
+                document.getElementById('bval'+[l]).innerHTML = (j);
+                l++;
+            }
+            $( "#data_table" ).buttonset();
+        }
     };
+    
+    $(function() {
+        $( "#metadata" ).accordion({
+            collapsible: true,
+            active: 1,
+            heightStyle: "fill"
+        });
+    });
+
     
     compilePlot = function() {
         var items = $('.bitems');
@@ -147,10 +140,28 @@
             'ylabel': 'Y',
             'data': []
         };
+        $('#metadivsub').empty();
+        var table_0row = $('<tr />', {});
+                //</td><td colspan=3>Temperature</td><td colspan=3>Temperature</td></tr>";
+        var table_1row = "<tr><td>File</td><td>Temp Max</td><td>Median Temp</td><td>Temp Min</td><td>H Field Max</td><td>Median H Field</td><td>H Field Min</td></tr>";
+        document.getElementById('metadivsub').innerHTML = '<tr><td>test</td></tr>';
+        //document.getElementById('metadivsub').innerHTML = table_1row;
+        document.getElementById('metadivsub').innerHTML = "test";
         for (j=0; j<list.length; j++) {
             dataObj['options']['series'].push({});
             dataObj['options']['series'][j].label = BT5Obj[list[j]].title;
             dataObj['data'].push(BT5Obj[list[j]]['data'][0]);
+            var md = BT5Obj[list[j]].metadata;
+            if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false) {
+            var temppara = $('<p />', {'id':'tp'+j, style:"margin-bottom:0"});
+            $('#metadivsub').append(temppara);
+                document.getElementById('tp'+[j]).innerHTML = "For " + BT5Obj[list[j]].title.substring(0,5) + ": The mean Temperature was " + Math.round((md.tempsum / md.tpoints) *10000)/10000 + "; the maximum temperature was " + md.tempmax + "; the minimum temperature was " + md.tempmin + ".";
+            }
+            if (isNaN(BT5Obj[list[j]].metadata.hfsum) === false) {
+            var hfpara = $('<p />', {'id':'hp'+j});
+            $('#metadivsub').append(hfpara);
+                document.getElementById('hp'+[j]).innerHTML = "For " + BT5Obj[list[j]].title.substring(0,5) + ": The mean magnetic field was " + Math.round((md.hfsum / md.hpoints) *10000)/10000 + "; the maximum magnetic field was " + md.hfmax + "; the minimum magnetic field was " + md.hfmin + ".";
+            }
         }
         showSANSData(dataObj);
     };
@@ -223,7 +234,7 @@
     //createPlotRegion('plot_region');
     
     window.onresize = function() {
-        $('.wrapper, .plotdiv').height(($(window).innerHeight() - 250).toFixed() + 'px');
+        $('.wrapper, .plotdiv').height(($(window).innerHeight() - 325).toFixed() + 'px');
         for (var p in plots) {
             plots[p].replot();
         }
@@ -400,7 +411,7 @@
                     pl = null;
                 }
             });
-            updateTransform();
+            //updateTransform();
         
     };
     
@@ -431,8 +442,8 @@ div#navigation{position:absolute;top:80px;left:0px;right:0px;bottom:50px;width:3
     cursor: pointer;
 }
 div#data{position:absolute;top:80px;left:300px;right:0px;bottom:50px;width:150px;overflow:auto;}
-
 label.blabel {width:75px;}
+div#metadata{height:130px; margin-top: 10px}
 
 .ui-state-default,
 .ui-widget-content .ui-state-default,
@@ -485,6 +496,10 @@ div#footer{overflow:hidden; position:absolute; bottom:0; left:0; right:0px; heig
         <div id="data_table"></div>
     </div>
     <div id="plot_region"></div>
+    <div id="metadata">
+        <h3>Metadata</h3>
+        <div id="metadivsub"></div>
+    </div>
     </div>
 </div>
 <div id="footer">
