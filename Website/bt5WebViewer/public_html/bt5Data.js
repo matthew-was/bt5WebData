@@ -13,6 +13,7 @@ singleBT5 = function(file) {
             sum = file.counts[i][1] + file.counts[i][2] + file.counts[i][4] + file.counts[i][5] + file.counts[i][6];
             total = sum * 1000000 / monitor;
             data.push([parseFloat(a2), parseInt(total)]);
+            meta.date = file.date;
         } catch(err) {}
     }
     if (typeof(file.column["temp"]) === "object") {
@@ -75,23 +76,30 @@ compileBT5Object = function(BT5Obj, BT5JSON, title) {
     if (title in BT5Obj) {
         for(var j=0;j<BT5JSON["data"][0].length;j++) {
             BT5Obj[title]["data"][0].push(BT5JSON["data"][0][j]);
-            BT5Obj[title]["metadata"]["tpoints"] += parseFloat(BT5JSON["metadata"]["tpoints"]);
-            BT5Obj[title]["metadata"]["tempsum"] += parseFloat(BT5JSON["metadata"]["tempsum"]);
-            if (BT5JSON["metadata"]["tempmin"] < BT5Obj[title]["metadata"]["tempmin"]) {
-                BT5Obj[title]["metadata"]["tempmin"] = BT5JSON["metadata"]["tempmin"];
-            }
-            if (BT5JSON["metadata"]["tempmax"] > BT5Obj[title]["metadata"]["tempmax"]) {
-                BT5Obj[title]["metadata"]["tempmax"] = BT5JSON["metadata"]["tempmax"];
-            }
-            BT5Obj[title]["metadata"]["hpoints"] += parseFloat(BT5JSON["metadata"]["hpoints"]);
-            BT5Obj[title]["metadata"]["hfsum"] += parseFloat(BT5JSON["metadata"]["hfsum"]);
-            if (BT5JSON["metadata"]["hfmin"] < BT5Obj[title]["metadata"]["hfmin"]) {
-                BT5Obj[title]["metadata"]["hfmin"] = BT5JSON["metadata"]["hfmin"];
-            }
-            if (BT5JSON["metadata"]["hfmax"] > BT5Obj[title]["metadata"]["hfmax"]) {
-                BT5Obj[title]["metadata"]["hfmax"] = BT5JSON["metadata"]["hfmax"];
-            }
         };
+        if (BT5Obj[title].metadata.date.valueOf() > BT5JSON.metadata.date.valueOf()) {
+            try {
+                BT5Obj[title]["metdata"]["date"] = BT5JSON["metadata"]["date"];
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        BT5Obj[title]["metadata"]["tpoints"] += parseFloat(BT5JSON["metadata"]["tpoints"]);
+        BT5Obj[title]["metadata"]["tempsum"] += parseFloat(BT5JSON["metadata"]["tempsum"]);
+        if (BT5JSON["metadata"]["tempmin"] < BT5Obj[title]["metadata"]["tempmin"]) {
+            BT5Obj[title]["metadata"]["tempmin"] = BT5JSON["metadata"]["tempmin"];
+        }
+        if (BT5JSON["metadata"]["tempmax"] > BT5Obj[title]["metadata"]["tempmax"]) {
+            BT5Obj[title]["metadata"]["tempmax"] = BT5JSON["metadata"]["tempmax"];
+        }
+        BT5Obj[title]["metadata"]["hpoints"] += parseFloat(BT5JSON["metadata"]["hpoints"]);
+        BT5Obj[title]["metadata"]["hfsum"] += parseFloat(BT5JSON["metadata"]["hfsum"]);
+        if (BT5JSON["metadata"]["hfmin"] < BT5Obj[title]["metadata"]["hfmin"]) {
+            BT5Obj[title]["metadata"]["hfmin"] = BT5JSON["metadata"]["hfmin"];
+        }
+        if (BT5JSON["metadata"]["hfmax"] > BT5Obj[title]["metadata"]["hfmax"]) {
+            BT5Obj[title]["metadata"]["hfmax"] = BT5JSON["metadata"]["hfmax"];
+        }
     } else {
         BT5Obj[title] = BT5JSON;
     }

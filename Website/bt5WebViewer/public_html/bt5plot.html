@@ -72,7 +72,7 @@
     batchBT5 = function(data) {
         var BT5 = new ICPParser();
         BT5.read(data);
-        BT5JSON = singleBT5(BT5);
+        var BT5JSON = singleBT5(BT5);
                 
         var temptitle = BT5JSON["title"];
         var title = temptitle.substring(0,5);
@@ -80,29 +80,41 @@
         if (BT5JSON["data"][0].length !== 0) {
             compileBT5Object(BT5Obj, BT5JSON, title);
         }
+        var BT5Array = [];
+        for (var obj in BT5Obj) {
+            BT5Array.push(BT5Obj[obj]);
+        }
+        
+        BT5Array.sort(function(a,b){
+            datea = a.metadata.date.valueOf();
+            dateb = b.metadata.date.valueOf(); 
+            return datea-dateb;
+        });
+
+        if (BT5Array.length === 0) {
+            $('#data_table').empty();
+        }
         finishcount = finishcount+1;
         if (finishcount === itemnumber) {
             var buttonlist = $('<div />', {'id':'blist1'});
             var buttonitem;
             var buttonlabel;
             $('#data_table').empty();
-            var i = 0;
-            for(var k in BT5Obj) {
-                var tempval = 'bval'+i;
+            for(i=0; i<BT5Array.length; i++) {
+                var j = BT5Array.length - (i + 1);
+                var k = BT5Array[j].title.substring(0,5);
                 buttonitem = $('<input />', {'type':'checkbox', 'id':k, 'class':'bitems', 'onchange':'compilePlot()'});
                 buttonlabel = $('<label />', {'for':k, 'id':'bval'+[i], 'class':'blabel'});
                 buttonlist.append(buttonitem);
                 buttonlist.append(buttonlabel);
                 buttonlist.append($('<br>'));
-                i++;
             }
             $('#data_table').empty();
             $('#data_table').append(buttonlist);
             reload_button.value = "Reload";
-            l = 0;
-            for(var j in BT5Obj) {
-                document.getElementById('bval'+[l]).innerHTML = (j);
-                l++;
+            for(l=0; l<BT5Array.length; l++) {
+                var m = BT5Array.length - (l + 1);
+                document.getElementById('bval'+[l]).innerHTML = (BT5Array[m].title.substring(0,5));
             }
             $( "#data_table" ).buttonset();
         }
