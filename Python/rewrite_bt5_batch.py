@@ -4,7 +4,7 @@ import simplejson
 import os
 import glob
 
-plottable_data = [{'type':'1d', 'title':'', 'options': {'axes': {'xaxis': {'label': ''}, 'yaxis': {'label': ''}}, 'series': [], 'legend': {'show': False, 'placement': 'se'}, 'cursor': {'show': True, 'tooltipLocation': 'se', 'tooltipOffset': 0}}, 'metadata': {}, 'clear_existing': True, 'data': [[]]}]
+plottable_data = [{'type':'1d', 'title':'', 'options': {'axes': {'xaxis': {'label': ''}, 'yaxis': {'label': ''}}, 'series': [], 'metadata': {}, 'data': [[]]}]
 
 dataDir = "/Users/Matthew/Desktop/Empty/"
 os.chdir(dataDir)
@@ -27,7 +27,7 @@ for i in dirList:
 	listVal = -1
 	if test1 not in objList:
 		objList[test1] = ""
-		plottable_data = [{'type':'1d','title':'','options':{'axes':{'xaxis': {'label':''}, 'yaxis': {'label':''}},'series':[],'legend':{'show': False, 'placement': 'se'},'cursor':{'show': True, 'tooltipLocation':'se', 'tooltipOffset': 0},},'metadata':{},'clear_existing':True,'data':[[]]}]
+		plottable_data = [{'type':'1d', 'title':'', 'options': {'axes': {'xaxis': {'label': ''}, 'yaxis': {'label': ''}}, 'series': [], 'metadata': {}, 'data': [[]]}]
 		plottable_data[0]["title"] = f.comment
 		plottable_data[0]["options"]["axes"]["xaxis"]["label"]="A2"
 		plottable_data[0]["options"]["axes"]["yaxis"]["label"]="Counts x 10^6 / Monitor"

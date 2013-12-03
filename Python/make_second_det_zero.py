@@ -2,14 +2,11 @@ import math
 
 plottable_data = {
            'type': '1d',
-           'title': 'NG7 Data',
+           'title': 'BT5 Data Data',
            'options': {
                'axes': {'xaxis': {'label':'A4'}, 'yaxis': {'label':'Counts'}},
                'series': [],
-               'legend': {'show': False, 'placement': 'se'},
-               'cursor': {'show': True, 'tooltipLocation':'se', 'tooltipOffset': 0},
                },
-           'clear_existing': True,
            'data': []
        }
 
@@ -34,10 +31,6 @@ plottable_data["options"]["axes"]["xaxis"]["label"]='A2'
 plottable_data["options"]["axes"]["yaxis"]["label"]='Counts * 10^6 / Monitor Counts'
 #f_out.write('\'axes\': {\'xaxis\': {\'label\':\'A2\'}, \'yaxis\':{\'label\':\'Counts * 10^6 / Monitor Counts\'}},\n')
 plottable_data["options"]["axes"]["series"]=[]
-plottable_data["options"]["legend"]["show"]=False
-plottable_data["options"]["legend"]["placement"]='se'
-plottable_data["options"]["cursor"]["tooltipLocation"]='se'
-plottable_data["options"]["cursor"]["tooltipOffset"]=0
 #f_out.write('\'series\': [],\n')
 #f_out.write('\'legend\': {\'show\': False, \'placement\': \'se\'},\n')
 #f_out.write('\'cursor\': {\'show\': True, \'tooltipLocation\':\'se\',\'tooltipOffset\': 0},\n')

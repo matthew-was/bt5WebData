@@ -12,7 +12,7 @@ singleBT5 = function(file) {
             monitor = file.column["monitor"][i];
             sum = file.counts[i][1] + file.counts[i][2] + file.counts[i][4] + file.counts[i][5] + file.counts[i][6];
             total = sum * 1000000 / monitor;
-            data.push([parseFloat(a2), parseInt(total)]);
+            data.push([parseFloat(a2), parseFloat(total)]);
             meta.date = file.date;
         } catch(err) {}
     }
