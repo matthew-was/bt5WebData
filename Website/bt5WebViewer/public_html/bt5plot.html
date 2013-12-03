@@ -161,7 +161,7 @@
             dataObj['options']['series'][j].label = BT5Obj[list[j]].title;
             dataObj['data'].push(BT5Obj[list[j]]['data'][0]);
             var md = BT5Obj[list[j]].metadata;
-            if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false && isNaN(BT5Obj[list[j]].metadata.hfsum) === false){
+            if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false || isNaN(BT5Obj[list[j]].metadata.hfsum) === false){
                 if (isNaN(BT5Obj[list[j]].metadata.tempsum) === false) {
                     if (md.tempmax === md.tempmin) {
                         metatable += "<tr><td>" + BT5Obj[list[j]].title.substring(0,5) + "</td><td>-</td><td>"+ Math.round((md.tempsum / md.tpoints) *10000)/10000 + "</td><td>-</td>";
