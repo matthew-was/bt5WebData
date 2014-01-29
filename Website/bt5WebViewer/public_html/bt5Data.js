@@ -81,7 +81,7 @@ compileBT5Object = function(BT5Obj, BT5JSON, title) {
             try {
                 BT5Obj[title]["metdata"]["date"] = BT5JSON["metadata"]["date"];
             } catch (err) {
-                console.log(err);
+               // console.log(err);
             }
         }
         BT5Obj[title]["metadata"]["tpoints"] += parseFloat(BT5JSON["metadata"]["tpoints"]);
