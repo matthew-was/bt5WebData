@@ -34,11 +34,14 @@
   <script src="http://ncnr.nist.gov/instruments/magik/js/jspack.js"></script>
   <script src="icpdata.js"></script>
   <script src="bt5Data.js"></script>
+        <script src="sylvester-min.js"></script>
+        <script src="optimize.js"></script>
+        <script src="gaussian.js"></script>
   <script>
   $(function() {
     
     INSTRUMENTS = ['BT1', 'BT4', 'BT5', 'BT7', 'BT8', 'CGD', 'NGD', 'NG2', 'NG3SANS', 'NG5', 'NG7', 'NG7SANS', 'NGBSANS'];
-    INSTRUMENT_NAMES = {'CGD': 'MAGIK', 'NGD': 'PBR', 'NG2':'HFBS', 'BT4':'FANS', 'NG7':'Reflectometer'};
+                INSTRUMENT_NAMES = {'CGD': 'MAGIK', 'NGD': 'PBR', 'NG2': 'HFBS', 'BT4': 'FANS', 'NG7': 'Reflectometer'};
     current_instr = null;
     plots = {};
     colorbars = {};
