@@ -3,29 +3,46 @@
 
 var debug = false;
 var prevtype = null;
-var types = { lin: {
-                incr: function(i, step) { return i + step; },
-                step: function(min,max,n) { return (max-min)/n; },
-                index: function(value,min,step) { return Math.floor((value-min)/step); },
-                dist: function(r,min,max) { return min + (max - min) * r; }
-              },
-              log: {
-                incr: function(i, step) { return Math.exp(Math.log(i) + Math.log(step)); },
-                step: function(min,max,n) { return Math.exp((Math.log(max)-Math.log(min))/n); },
-                index: function(step,min,value) { return Math.floor(Math.log((value/min)/step)); },
-                dist: function(r,min,max) { return Math.exp(Math.log(min) + Math.log(max / min) * r); }
-              }
-            };
+var types = {
+    lin: {
+        incr: function (i, step) {
+            return i + step;
+        },
+        step: function (min, max, n) {
+            return (max - min) / n;
+        },
+        index: function (value, min, step) {
+            return Math.floor((value - min) / step);
+        },
+        dist: function (r, min, max) {
+            return min + (max - min) * r;
+        }
+    },
+    log: {
+        incr: function (i, step) {
+            return Math.exp(Math.log(i) + Math.log(step));
+        },
+        step: function (min, max, n) {
+            return Math.exp((Math.log(max) - Math.log(min)) / n);
+        },
+        index: function (step, min, value) {
+            return Math.floor(Math.log((value / min) / step));
+        },
+        dist: function (r, min, max) {
+            return Math.exp(Math.log(min) + Math.log(max / min) * r);
+        }
+    }
+};
 var plots = [];
 //var plot = null; // starting with just one plot.
 
 function array_to_rgb(array) {
-  return 'rgb(' + array[0] + ',' + array[1] + ',' + array[2] + ')';
+    return 'rgb(' + array[0] + ',' + array[1] + ',' + array[2] + ')';
 }
 
 
 function logTickFormatter(format, val) {
-    var new_val = Math.exp(Math.log(10)*val)
+    var new_val = Math.exp(Math.log(10) * val)
     return $.jqplot.DefaultTickFormatter(format, new_val)
 }
 
@@ -34,35 +51,51 @@ function renderImageColorbar2(parent_plot, plotid, cbar_options) {
         //cursor: {show: true, zoom: true},
         paddingLeft: 0,
         sortData: false,
-        interactors: [{ type:'standard', name: 'standard'}],
-        series: [ {shadow: false, padding: 0} ],
-        grid: {shadow: false},
-        seriesDefaults:{
+        interactors: [{
+            type: 'standard',
+            name: 'standard'
+        }],
+        series: [{
+            shadow: false,
+            padding: 0
+        }],
+        grid: {
+            shadow: false
+        },
+        seriesDefaults: {
             yaxis: 'y2axis',
             shadow: false,
-            renderer:$.jqplot.colorbarRenderer,
-            rendererOptions: { parent_plot: parent_plot }
+            renderer: $.jqplot.colorbarRenderer,
+            rendererOptions: {
+                parent_plot: parent_plot
+            }
         },
-        axes:{ 
-            xaxis:{ tickOptions: {show: false} },
-            y2axis:{
+        axes: {
+            xaxis: {
+                tickOptions: {
+                    show: false
+                }
+            },
+            y2axis: {
                 //label: 'Intensity',
                 labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                 tickOptions: {
                     formatString: "%.3g",
-                    _styles: {left: 5},
+                    _styles: {
+                        left: 5
+                    },
                 }
             }
         }
     }
-    
+
     var cbar_options = cbar_options || {};
     jQuery.extend(true, options, cbar_options);
-        
-    
+
+
     //if (!plot2d_colorbar) {
-         var plot2d_colorbar = $.jqplot(plotid, [[1,1]], options); 
+    var plot2d_colorbar = $.jqplot(plotid, [[1, 1]], options);
     //}
     //else { // the colorbar already exists - just link it to the new plot
     //    plot2d_colorbar.series[0].parent_plot = parent_plot;
@@ -71,49 +104,54 @@ function renderImageColorbar2(parent_plot, plotid, cbar_options) {
 }
 
 function render1dplot(plot_obj, data, transform, plotid, plot_options) {
-    
+
     var temptransform = transform;
-    if (typeof(transform) === 'string') {
+    if (typeof (transform) === 'string') {
         transform = temptransform;
-    } else if(typeof(transform) === 'object') {
+    } else if (typeof (transform) === 'object') {
         var xtransform = temptransform.xaxis;
-        var ytransform = temptransform.yaxis;        
+        var ytransform = temptransform.yaxis;
     }
-    
+
     var options = {
         title: data.title,
         seriesDefaults: {
-            shadow: false, 
-            markerOptions: {shadow: false, size: 8},
+            shadow: false,
+            markerOptions: {
+                shadow: false,
+                size: 8
+            },
             breakOnNull: true
         },
-        axes:{
-          xaxis:{
-            renderer: (xtransform == 'log') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
-            label: data.xlabel,
-            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g"
+        axes: {
+            xaxis: {
+                renderer: (xtransform == 'log') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
+                label: data.xlabel,
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g"
+                }
+            },
+            yaxis: {
+                renderer: (ytransform == 'log') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
+                label: data.ylabel,
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g",
+                    // fix for ticks drifting to the left in accordionview!
+                    _styles: {
+                        right: 0
+                    },
+                }
             }
-          },
-          yaxis:{
-            renderer: (ytransform == 'log') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
-            label: data.ylabel,
-            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g",
-                // fix for ticks drifting to the left in accordionview!
-                _styles: {right: 0},
-            }
-          }
         },
         cursor: {
             show: true,
             zoom: true,
             clickReset: true,
-            tooltipLocation:'se',
+            tooltipLocation: 'se',
             tooltipOffset: -60,
             useAxesFormatters: false,
         },
@@ -123,17 +161,20 @@ function render1dplot(plot_obj, data, transform, plotid, plot_options) {
             placement: 'outside',
             renderer: $.jqplot.InteractiveLegendRenderer
         },
-        grid: {shadow: false},
+        grid: {
+            shadow: false
+        },
         sortData: false,
         //interactors: [ {type: 'Rectangle', name: 'rectangle'} ],
         type: '1d'
     };
-    
+
     jQuery.extend(true, options, data.options);
     jQuery.extend(true, options, plot_options);
-    $('#'+plotid).empty();
+    $('#' + plotid).empty();
     plot_obj = $.jqplot(plotid, data.data, options);
     plot_obj.type = '1d';
+
     function handleLegendClick(ev) {
         var series_num = ev.target.getAttribute('series_num') || 0;
         //var mplot = ev.data.plot;
@@ -144,32 +185,37 @@ function render1dplot(plot_obj, data, transform, plotid, plot_options) {
     }
     //$('.jqplot-table-legend-label').click({plot: plot1d}, handleLegendClick);
     plot_obj.legend.handleClick = handleLegendClick;
-    
+
     function transformData(transform, axis) {
         // axis is 'xaxis' or 'x2axis' or 'yaxis' etc.
         var axis = (axis == null) ? 'yaxis' : axis;
-        var axis_table = {'x': 0, 'y': 1};        
-        if (!(axis[0] in axis_table)) { return }
+        var axis_table = {
+            'x': 0,
+            'y': 1
+        };
+        if (!(axis[0] in axis_table)) {
+            return
+        }
         var ax = axis_table[axis[0]]; // based on first character of axis name
         this['_' + axis + '_transform'] = transform;
         if (transform == 'log') {
-            for (var i=0; i<this.series.length; i++) {
+            for (var i = 0; i < this.series.length; i++) {
                 var pd = this.series[i]._plotData;
                 //var sd = this.series[i].data;
                 var d = this.data[i];
-                for (var j=0; j<pd.length; j++) {
-                    pd[j][ax] = d[j][ax]>0 ? Math.log(d[j][ax]) / Math.LN10 : null;
+                for (var j = 0; j < pd.length; j++) {
+                    pd[j][ax] = d[j][ax] > 0 ? Math.log(d[j][ax]) / Math.LN10 : null;
                 }
             }
             this.axes[axis].resetScale();
             this.axes[axis].labelOptions.label = "log₁₀" + (this.options.axes[axis].label || "");
             this.replot();
         } else { // transform == 'lin'
-            for (var i=0; i<this.series.length; i++) {
+            for (var i = 0; i < this.series.length; i++) {
                 var pd = this.series[i]._plotData;
                 //var sd = this.series[i].data;
                 var d = this.data[i];
-                for (var j=0; j<pd.length; j++) {
+                for (var j = 0; j < pd.length; j++) {
                     pd[j][ax] = d[j][ax];
                     //sd[j][1] = d[j][1];
                 }
@@ -179,20 +225,20 @@ function render1dplot(plot_obj, data, transform, plotid, plot_options) {
             this.replot();
         }
     }
-    
+
     plot_obj.setTransform = transformData;
 
-    if(typeof(transform) === 'object') {
-        if (transform.hasOwnProperty('xaxis')){
+    if (typeof (transform) === 'object') {
+        if (transform.hasOwnProperty('xaxis')) {
             var xaxistransform = transform.xaxis ? "log" : false;
             plot_obj.setTransform(xaxistransform, 'xaxis');
         }
-        if (transform.hasOwnProperty('yaxis')){
+        if (transform.hasOwnProperty('yaxis')) {
             var yaxistransform = transform.yaxis ? "log" : false;
             plot_obj.setTransform(yaxistransform, 'yaxis');
         }
     } else {
-        plot_obj.setTransform(transform);        
+        plot_obj.setTransform(transform);
     }
 
     return plot_obj;
@@ -202,68 +248,76 @@ function renderImageData2(data, transform, plotid, plot_options) {
     var plot_options = plot_options || {};
     var dims = data.dims;
     var display_dims = data.display_dims || dims; // plot_dims = data_dims if not specified
-    function roundToNearest(val, dmax, dmin, ddim){
+    function roundToNearest(val, dmax, dmin, ddim) {
         // round a value to the nearest whole value in the range
-         var step = (dmax - dmin) / (ddim - 1);
-         var index = Math.floor((val - dmin) / step);
-         return (index * step) + dmin;
+        var step = (dmax - dmin) / (ddim - 1);
+        var index = Math.floor((val - dmin) / step);
+        return (index * step) + dmin;
     }
 
     display_dims.xmin = roundToNearest(display_dims.xmin, dims.xmax, dims.xmin, dims.xdim);
     display_dims.xmax = roundToNearest(display_dims.xmax, dims.xmax, dims.xmin, dims.xdim);
     display_dims.ymin = roundToNearest(display_dims.ymin, dims.ymax, dims.ymin, dims.ydim);
     display_dims.ymax = roundToNearest(display_dims.ymax, dims.ymax, dims.ymin, dims.ydim);
-    
+
     var options = {
         title: data.title,
         renderer: $.jqplot.heatmapRender,
-        seriesDefaults:{
-            renderer:$.jqplot.heatmapRenderer,
+        seriesDefaults: {
+            renderer: $.jqplot.heatmapRenderer,
             rendererOptions: {
                 dims: data.dims,
                 transform: transform
-                }
+            }
         },
-        series: [{showMarker:false, showLine:false, breakOnNull:true}],
-        axes:{
-          xaxis:{
-            label: data.xlabel,
-            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g"
+        series: [{
+            showMarker: false,
+            showLine: false,
+            breakOnNull: true
+        }],
+        axes: {
+            xaxis: {
+                label: data.xlabel,
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g"
+                }
+            },
+            yaxis: {
+                label: data.ylabel,
+                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g",
+                    // fix for ticks drifting to the left in accordionview!
+                    _styles: {
+                        right: 0
+                    },
+                }
             }
-          },
-          yaxis:{
-            label: data.ylabel,
-            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g",
-                // fix for ticks drifting to the left in accordionview!
-                _styles: {right: 0},
-            }
-          }
         },
         cursor: {
             show: true,
             zoom: true,
             clickReset: true,
-            tooltipLocation:'se',
+            tooltipLocation: 'se',
             tooltipOffset: -60,
             useAxesFormatters: false,
         },
-        grid: {shadow: false},
+        grid: {
+            shadow: false
+        },
         sortData: false,
         //interactors: [ {type: 'Rectangle', name: 'rectangle'} ],
         type: '2d'
     };
-    
+
     jQuery.extend(true, options, data.options);
     jQuery.extend(true, options, plot_options);
     var plot2d = $.jqplot(plotid, data.z, options);
     plot2d.type = '2d';
-    plot2d.setTransform = function(transform) {
+    plot2d.setTransform = function (transform) {
         plot2d.series[0].set_transform(transform);
         plot2d.redraw();
     }
@@ -271,10 +325,10 @@ function renderImageData2(data, transform, plotid, plot_options) {
 };
 
 function canvas2img(canvasid) {
-  var cvs = document.getElementById(canvasid);
-  var img = new Image();
-  img.src = cvs.toDataURL('image/png');
-  return img;
+    var cvs = document.getElementById(canvasid);
+    var img = new Image();
+    img.src = cvs.toDataURL('image/png');
+    return img;
 }
 
 function make_metadata_table(metadata, numcols) {
@@ -282,54 +336,87 @@ function make_metadata_table(metadata, numcols) {
     var new_table = document.createElement('table');
     var keys = Object.keys(metadata);
     var num_items = keys.length;
-    for (var i=0; i<num_items; i+=numcols) {
+    for (var i = 0; i < num_items; i += numcols) {
         var row = new_table.insertRow(-1);
-        for (var j=0; j<numcols; j++) {
+        for (var j = 0; j < numcols; j++) {
             var index = i + j;
-            if (index >= num_items) { break; }
+            if (index >= num_items) {
+                break;
+            }
             var key = keys[index];
-            
+
             var value = metadata[key];
             var label = row.insertCell(-1);
             label.setAttribute('class', 'metadata-label');
-            label.innerHTML=key;
+            label.innerHTML = key;
             var entry = row.insertCell(-1);
             entry.setAttribute('class', 'metadata-value');
-            entry.innerHTML=value;
+            entry.innerHTML = value;
         }
     }
     return new_table;
 }
 
 function update1dPlot(plot, toPlots, target_id, plotnum) {
-    if (!plot || !plot.hasOwnProperty("type") || plot.type!='1d'){
+    if (!plot || !plot.hasOwnProperty("type") || plot.type != '1d') {
         var plotdiv = document.getElementById(target_id);
         plotdiv.innerHTML = "";
-        jQuery(plotdiv).append(jQuery('<div />', {'class':'ui-widget-content plotbox', style:"display: block; width: 700px; height: 350px;", id:"plotbox"}));
-        jQuery('.plotbox', jQuery(plotdiv)).append(jQuery('<div />', {'class': 'plotgrid', style:"float: left; width:625px; height: 350px; ", id:target_id+"_plotgrid"}));
-        jQuery(plotdiv).append(jQuery('<div />', {style:"display: block; width: 410px; height: 100px;", id:"plotbuttons"}));
-        jQuery(plotdiv).append(jQuery('<div />', {id:"metadata", class:"slidingDiv"}));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {id:"plot_selectz"}));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {id:"plot_selectnum"}));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<span />', {class:"show_hide ui-state-default"})
+        jQuery(plotdiv).append(jQuery('<div />', {
+            'class': 'ui-widget-content plotbox',
+            style: "display: block; width: 700px; height: 350px;",
+            id: "plotbox"
+        }));
+        jQuery('.plotbox', jQuery(plotdiv)).append(jQuery('<div />', {
+            'class': 'plotgrid',
+            style: "float: left; width:625px; height: 350px; ",
+            id: target_id + "_plotgrid"
+        }));
+        jQuery(plotdiv).append(jQuery('<div />', {
+            style: "display: block; width: 410px; height: 100px;",
+            id: "plotbuttons"
+        }));
+        jQuery(plotdiv).append(jQuery('<div />', {
+            id: "metadata",
+            class: "slidingDiv"
+        }));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {
+            id: "plot_selectz"
+        }));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {
+            id: "plot_selectnum"
+        }));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<span />', {
+                class: "show_hide ui-state-default"
+            })
             .text("Show/hide metadata"))
-            .click(function() { $('.slidingDiv').slideToggle(); });
-        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', { value: 'lin', text: 'lin' }));
-        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', { value: 'log', text: 'log' }));
+            .click(function () {
+                $('.slidingDiv').slideToggle();
+            });
+        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', {
+            value: 'lin',
+            text: 'lin'
+        }));
+        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', {
+            value: 'log',
+            text: 'log'
+        }));
         if (jQuery('.plotbox', $(plotdiv)).resizable) {
             jQuery('.plotbox', $(plotdiv)).resizable({
                 alsoResize: jQuery(".plotgrid", $(this)),
-                start: function(event, ui) { ui.element.css('opacity', '0.0'); },
-                stop: function(event, ui) {
+                start: function (event, ui) {
+                    ui.element.css('opacity', '0.0');
+                },
+                stop: function (event, ui) {
                     plot.replot();
                     ui.element.css('opacity', '1.0');
-                    plot.replot();}
+                    plot.replot();
+                }
             });
         }
         //plot = null;
         //plot1d = null;
     }
-    
+
     var plotnum = plotnum || 0;
     var toPlot = toPlots[plotnum];
     var toPlots = toPlots;
@@ -341,25 +428,31 @@ function update1dPlot(plot, toPlots, target_id, plotnum) {
         jQuery(".show_hide").show();
     } else {
         jQuery(".show_hide").hide();
-    }  
-    
-    document.getElementById('plot_selectnum').innerHTML = "";
-    for (var i=0; i<toPlots.length; i++) {
-        var label = toPlots[i].options.title || '';
-        jQuery(document.getElementById('plot_selectnum')).append(jQuery('<option />', { value: i, text: 'dataset: ' + i + " " + label }));
     }
-    
-    plot = render1dplot(plot, toPlot, transform, target_id+'_plotgrid');
+
+    document.getElementById('plot_selectnum').innerHTML = "";
+    for (var i = 0; i < toPlots.length; i++) {
+        var label = toPlots[i].options.title || '';
+        jQuery(document.getElementById('plot_selectnum')).append(jQuery('<option />', {
+            value: i,
+            text: 'dataset: ' + i + " " + label
+        }));
+    }
+
+    plot = render1dplot(plot, toPlot, transform, target_id + '_plotgrid');
 
     var selectedIndex;
-    if ( transform == 'log') { selectedIndex = 1 }
-    else { selectedIndex = 0 }
+    if (transform == 'log') {
+        selectedIndex = 1
+    } else {
+        selectedIndex = 0
+    }
     document.getElementById('plot_selectz').selectedIndex = selectedIndex;
-    
+
     // out with the old bindings
     jQuery('#plot_selectnum').unbind('change');
     jQuery('#plot_selectz').unbind('change');
-    
+
     function onchange(e) {
         var selectz = document.getElementById('plot_selectz');
         var selectnum = document.getElementById('plot_selectnum');
@@ -380,48 +473,83 @@ function update1dPlot(plot, toPlots, target_id, plotnum) {
     jQuery('#plot_selectz').change({}, onchange);
     jQuery('#fix_aspect_ratio').change({}, onchange);
     jQuery('#aspect_ratio').change({}, onchange);
-    
-    return plot; 
+
+    return plot;
 }
 
 function update2dPlot(plot, toPlots, target_id, plotnum) {
-    if (!plot || !plot.hasOwnProperty("type") || plot.type!='2d'){
+    if (!plot || !plot.hasOwnProperty("type") || plot.type != '2d') {
         var plotdiv = document.getElementById(target_id);
         plotdiv.innerHTML = "";
-        jQuery(plotdiv).append(jQuery('<div />', {class:'ui-widget-content', style:"display: block; width: 700px; height: 350px;", id:"plotbox"}));
+        jQuery(plotdiv).append(jQuery('<div />', {
+            class: 'ui-widget-content',
+            style: "display: block; width: 700px; height: 350px;",
+            id: "plotbox"
+        }));
         //jQuery(document.getElementById('plotbox')).append(jQuery('<div />', {style:"float: left; width:550px; height: 350px; ", id:"plotgrid"}));
-        jQuery(document.getElementById('plotbox')).append(jQuery('<div />', {style:"display: inline-block; left: 0; top: 0; width:550px; height: 350px; ", id:"plotgrid"}));
-        jQuery(document.getElementById('plotbox')).append(jQuery('<div />', {style:"display: inline-block; width: 100px; height: 100%; ", id:"colorbar"}));
-        jQuery(plotdiv).append(jQuery('<div />', {style:"display: block; width: 410px; height: 100px;", id:"plotbuttons"}));
+        jQuery(document.getElementById('plotbox')).append(jQuery('<div />', {
+            style: "display: inline-block; left: 0; top: 0; width:550px; height: 350px; ",
+            id: "plotgrid"
+        }));
+        jQuery(document.getElementById('plotbox')).append(jQuery('<div />', {
+            style: "display: inline-block; width: 100px; height: 100%; ",
+            id: "colorbar"
+        }));
+        jQuery(plotdiv).append(jQuery('<div />', {
+            style: "display: block; width: 410px; height: 100px;",
+            id: "plotbuttons"
+        }));
         //jQuery(plotdiv).append(jQuery('<div />', {id:"metadata", class:"slidingDiv"}));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {id:"plot_selectz"}));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {id:"plot_selectnum"}));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {
+            id: "plot_selectz"
+        }));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<select />', {
+            id: "plot_selectnum"
+        }));
         jQuery(document.getElementById('plotbuttons')).append(document.createTextNode('Fix aspect ratio:'));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<input />', {id:"fix_aspect_ratio", type:"checkbox", checked: false}));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<input />', {
+            id: "fix_aspect_ratio",
+            type: "checkbox",
+            checked: false
+        }));
         jQuery(document.getElementById('plotbuttons')).append(document.createTextNode('value:'));
-        jQuery(document.getElementById('plotbuttons')).append(jQuery('<input />', {id:"aspect_ratio", type:"text", value:"1.0", width: "45px"}));
+        jQuery(document.getElementById('plotbuttons')).append(jQuery('<input />', {
+            id: "aspect_ratio",
+            type: "text",
+            value: "1.0",
+            width: "45px"
+        }));
         //jQuery(document.getElementById('plotbuttons')).append(jQuery('<span />', {class:"show_hide ui-state-default"}).text("Show/hide metadata"));
         //jQuery(document.getElementById('plotbuttons')).append(jQuery('<input />', {id:"plot_update", type:"submit", value:"Update plot"}));
-        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', { value: 'lin', text: 'lin' }));
-        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', { value: 'log', text: 'log' }));
+        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', {
+            value: 'lin',
+            text: 'lin'
+        }));
+        jQuery(document.getElementById('plot_selectz')).append(jQuery('<option />', {
+            value: 'log',
+            text: 'log'
+        }));
         if (jQuery('#plotbox').resizable) {
             jQuery('#plotbox').resizable({
                 alsoResize: jQuery("#plotgrid").add(jQuery('#colorbar')),
-                start: function() { jQuery("#plotgrid").add(jQuery('#colorbar')).css('opacity', '0.0'); },
-                stop: function() {
+                start: function () {
+                    jQuery("#plotgrid").add(jQuery('#colorbar')).css('opacity', '0.0');
+                },
+                stop: function () {
                     plot.replot();
                     //plot.series[0].zoom_to();
                     jQuery("#plotgrid").add(jQuery('#colorbar')).css('opacity', '1');
                     plot.replot();
-                    colorbar.replot(); }
+                    colorbar.replot();
+                }
             });
         }
-        
+
         plot = null;
         plot2d = null;
         plot2d_colorbar = null;
     }
-    
+
     var plotnum = plotnum || 0;
     var toPlot = toPlots[plotnum];
     var toPlots = toPlots;
@@ -445,27 +573,38 @@ function update2dPlot(plot, toPlots, target_id, plotnum) {
     if (toPlot.options && toPlot.options.fixedAspect && toPlot.options.fixedAspect.fixAspect) {
         fixAspect = toPlot.options.fixedAspect.fixAspect;
     }
-    document.getElementById('fix_aspect_ratio').checked = fixAspect;    
-    
+    document.getElementById('fix_aspect_ratio').checked = fixAspect;
+
     document.getElementById('plot_selectnum').innerHTML = "";
-    for (var i=0; i<toPlots.length; i++) {
+    for (var i = 0; i < toPlots.length; i++) {
         var zlabel = toPlots[i].zlabel || '';
-        jQuery(document.getElementById('plot_selectnum')).append(jQuery('<option />', { value: i, text: 'dataset: ' + i + " " + zlabel }));
+        jQuery(document.getElementById('plot_selectnum')).append(jQuery('<option />', {
+            value: i,
+            text: 'dataset: ' + i + " " + zlabel
+        }));
     }
-    
-    plot = renderImageData2(toPlot, transform, 'plotgrid', {'fixedAspect': {'fixAspect': fixAspect, 'aspectRatio': aspectRatio}});
+
+    plot = renderImageData2(toPlot, transform, 'plotgrid', {
+        'fixedAspect': {
+            'fixAspect': fixAspect,
+            'aspectRatio': aspectRatio
+        }
+    });
     colorbar = renderImageColorbar2(plot.series[0], 'colorbar');
     plot.series[0].zoom_to();
     plot.replot();
     var selectedIndex;
-    if ( transform == 'log') { selectedIndex = 1 }
-    else { selectedIndex = 0 }
+    if (transform == 'log') {
+        selectedIndex = 1
+    } else {
+        selectedIndex = 0
+    }
     document.getElementById('plot_selectz').selectedIndex = selectedIndex;
-    
+
     // out with the old bindings
     jQuery('#plot_selectnum').unbind('change');
     jQuery('#plot_selectz').unbind('change');
-    
+
     function onchange(e) {
         var selectz = document.getElementById('plot_selectz');
         var selectnum = document.getElementById('plot_selectnum');
@@ -504,23 +643,23 @@ function update2dPlot(plot, toPlots, target_id, plotnum) {
     jQuery('#plot_selectz').change({}, onchange);
     jQuery('#fix_aspect_ratio').change({}, onchange);
     jQuery('#aspect_ratio').change({}, onchange);
-//    jQuery('#plot_update').unbind('click');
-//    jQuery('#plot_update').click({ plot: plot, colorbar: colorbar, toPlots: toPlots }, onchange
-//        function(e) {
-//            console.log(e);
-//            var plot = e.data.plot; var toPlots = e.data.toPlots; var colorbar = e.data.colorbar;
-//            var selectz = document.getElementById('plot_selectz');
-//            var selectnum = document.getElementById('plot_selectnum');
-//            var transform = selectz[selectz.selectedIndex].value;
-//            var plotnum = selectnum[selectnum.selectedIndex].value;
-//            var toPlot = toPlots[plotnum];
-//            console.log('replot: ', plotnum, transform, toPlot, toPlots)
-//            plot = renderImageData(toPlot, transform, 'plots');
-//            colorbar = renderImageColorbar(toPlot, transform, 'colorbar');
-//        }
-//    );
-    
-    return plot; 
+    //    jQuery('#plot_update').unbind('click');
+    //    jQuery('#plot_update').click({ plot: plot, colorbar: colorbar, toPlots: toPlots }, onchange
+    //        function(e) {
+    //            console.log(e);
+    //            var plot = e.data.plot; var toPlots = e.data.toPlots; var colorbar = e.data.colorbar;
+    //            var selectz = document.getElementById('plot_selectz');
+    //            var selectnum = document.getElementById('plot_selectnum');
+    //            var transform = selectz[selectz.selectedIndex].value;
+    //            var plotnum = selectnum[selectnum.selectedIndex].value;
+    //            var toPlot = toPlots[plotnum];
+    //            console.log('replot: ', plotnum, transform, toPlot, toPlots)
+    //            plot = renderImageData(toPlot, transform, 'plots');
+    //            colorbar = renderImageColorbar(toPlot, transform, 'colorbar');
+    //        }
+    //    );
+
+    return plot;
 }
 
 var plotregion = null;
@@ -536,53 +675,53 @@ function plottingAPI(toPlots, plotid_prefix) {
 
         // throw "Unsupported data format! Data must be a list of series.";
     }
-   // toPlots = $A(toPlots).flatten();
-    
+    // toPlots = $A(toPlots).flatten();
+
     if (debug)
         console.log('toPlots:', toPlots)
-    // assuming all plots in the list are of the same type!
+        // assuming all plots in the list are of the same type!
     plot_type = toPlots[0].type
     var plot;
-    
+
     switch (plot_type) {
-        case '2d':
-            plot = update2dPlot(plot, toPlots, plotid_prefix);
-            break;
-        
-        case '1d':
-            plot = update1dPlot(plot, toPlots, plotid_prefix);
-            break;
-        
-        case 'nd': 
-             for (var i = 0; i < toPlots.length; i ++) {
-                var toPlot = toPlots[i];
-                var plotid = plotid_prefix + '_' + i;
-                if (debug)
-                    console.log('plotid:', plotid);
-                
-                plot = updateNdPlot(plot, toPlot, plotid, plotid_prefix, true);
-                
-                jQuery(document.getElementById(plotid + '_update')).unbind('click');
-                jQuery(document.getElementById(plotid + '_update')).click({ 
-                    plot: plot, 
-                    toPlot: toPlot, 
+    case '2d':
+        plot = update2dPlot(plot, toPlots, plotid_prefix);
+        break;
+
+    case '1d':
+        plot = update1dPlot(plot, toPlots, plotid_prefix);
+        break;
+
+    case 'nd':
+        for (var i = 0; i < toPlots.length; i++) {
+            var toPlot = toPlots[i];
+            var plotid = plotid_prefix + '_' + i;
+            if (debug)
+                console.log('plotid:', plotid);
+
+            plot = updateNdPlot(plot, toPlot, plotid, plotid_prefix, true);
+
+            jQuery(document.getElementById(plotid + '_update')).unbind('click');
+            jQuery(document.getElementById(plotid + '_update')).click({
+                    plot: plot,
+                    toPlot: toPlot,
                     plotid: plotid,
                     plotid_prefix: plotid_prefix
-                    }, 
-                        function(e) {
-                            var plot = e.data.plot; 
-                            var toPlot = e.data.toPlot;
-                            var plotid = e.data.plotid;
-                            var plotid_prefix = e.data.plotid_prefix;
-                            plot = updateNdPlot(plot, toPlot, plotid, plotid_prefix);
-                        });
-            }
-            break;
-        
-        default:
-            alert('plotting of datatype "' + plot_type + '" is unsupported');
+                },
+                function (e) {
+                    var plot = e.data.plot;
+                    var toPlot = e.data.toPlot;
+                    var plotid = e.data.plotid;
+                    var plotid_prefix = e.data.plotid_prefix;
+                    plot = updateNdPlot(plot, toPlot, plotid, plotid_prefix);
+                });
+        }
+        break;
+
+    default:
+        alert('plotting of datatype "' + plot_type + '" is unsupported');
     }
-    
+
     return plot;
 }
 
@@ -613,7 +752,7 @@ function createNdPlotRegion(plotid, renderTo) {
     updatebutton.setAttribute('id', plotid + '_update');
     updatebutton.setAttribute('type', 'submit');
     updatebutton.setAttribute('value', 'Update plot');
-    
+
     divy.appendChild(selecty);
     divx.appendChild(selectx);
     divx.appendChild(updatebutton);
@@ -621,32 +760,38 @@ function createNdPlotRegion(plotid, renderTo) {
     div.appendChild(divtarget);
     div.appendChild(divc);
     div.appendChild(divx);
-    
+
     return div;
 }
 
 function updateSeriesSelects(toPlot, plotid) {
     //var plotid = plot.targetId.substring(1 * (plot.targetId[0] == '#'), plot.targetId.length - 7);
-    
+
     var selectx = document.getElementById(plotid + '_selectx'),
         selecty = document.getElementById(plotid + '_selecty');
-    var orders = { 'orderx': selectx, 'ordery': selecty };
-    
+    var orders = {
+        'orderx': selectx,
+        'ordery': selecty
+    };
+
     for (var order in orders) {
         orders[order].innerHTML = ""
-        for (var i = 0; i < toPlot[order].length; i ++) {
+        for (var i = 0; i < toPlot[order].length; i++) {
             var quantity = toPlot[order][i];
             var key = quantity.key || quantity;
             var label = quantity.label || quantity;
-            
+
             // Make sure that each series defines data for this quantity
-            for (var s = 0; s < toPlot.series.length; s ++) {
+            for (var s = 0; s < toPlot.series.length; s++) {
                 if (!toPlot.series[s].data.hasOwnProperty(key))
                     throw "Quantity '" + key + "' is undefined in series '" + toPlot.series[s].label + "', but is expected from '" + order + "'";
             }
-            if (debug) console.log("updating series selects", key,label);
+            if (debug) console.log("updating series selects", key, label);
             // Append a new <option> for this quantity to the <select> element
-            jQuery(orders[order]).append(jQuery('<option />', { value: key, text: label }));
+            jQuery(orders[order]).append(jQuery('<option />', {
+                value: key,
+                text: label
+            }));
         }
     }
 }
@@ -654,8 +799,7 @@ function updateSeriesSelects(toPlot, plotid) {
 function get(arr, i) {
     if (arr) {
         return arr[i];
-    }
-    else {
+    } else {
         return null;
     }
 }
@@ -665,43 +809,62 @@ function updateNdPlot(plot, toPlot, plotid, plotid_prefix, create) {
     var plotdiv = document.getElementById(plotid_prefix);
     if (debug)
         console.log('plotid:', plotid, 'plotdiv:', plotdiv, plotid_prefix)
-    
-    if (!plot || !plot.hasOwnProperty("type") || plot.type!='nd'){
+
+    if (!plot || !plot.hasOwnProperty("type") || plot.type != 'nd') {
         stage = 1;
         plotdiv.innerHTML = ""
-        var plot = { stage: 1, prevtype: null, targetId: plotid + '_target', series: [], options: { title: '', series: [{}], axes: {} }};
-        plot.options.cursor = { show: true, zoom: true, tooltipFormatString: '%.3g, %.3g', tooltipLocation:'ne'};
-        plot.options.series[0].markerOptions = {shadow: false};
+        var plot = {
+            stage: 1,
+            prevtype: null,
+            targetId: plotid + '_target',
+            series: [],
+            options: {
+                title: '',
+                series: [{}],
+                axes: {}
+            }
+        };
+        plot.options.cursor = {
+            show: true,
+            zoom: true,
+            tooltipFormatString: '%.3g, %.3g',
+            tooltipLocation: 'ne'
+        };
+        plot.options.series[0].markerOptions = {
+            shadow: false
+        };
         plot.options.series[0].shadow = false;
         plot.options.axes = {
-          xaxis:{
-            //label: data.xlabel,
-            //labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g"
+            xaxis: {
+                //label: data.xlabel,
+                //labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g"
+                }
+            },
+            yaxis: {
+                //label: data.ylabel,
+                //labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: "%.2g",
+                    // fix for ticks drifting to the left in accordionview!
+                    _styles: {
+                        right: 0
+                    },
+                }
             }
-          },
-          yaxis:{
-            //label: data.ylabel,
-            //labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-            tickOptions: {
-                formatString: "%.2g",
-                // fix for ticks drifting to the left in accordionview!
-                _styles: {right: 0},
-            }
-          }
         }
-        
+
         //plot.options.series = [{ renderer: jQuery.jqplot.errorbarRenderer, rendererOptions: { errorBar: true } }];
     }
-    
+
     if (create) {
         plotdiv.appendChild(createNdPlotRegion(plotid));
         updateSeriesSelects(toPlot, plotid);
     }
-    
+
     target_id = plotid + '_target';
     //var plotid = plot.targetId.substring(1 * (plot.targetId[0] == '#'), plot.targetId.length - 7);
     var series = plot.series;
@@ -709,11 +872,11 @@ function updateNdPlot(plot, toPlot, plotid, plotid_prefix, create) {
     //var series = plot.series;
     //var options = plot.options;
     if (debug) console.log(100, plotid, toPlot);
-    
+
     var quantityx = document.getElementById(plotid + '_selectx').value,
         quantityy = document.getElementById(plotid + '_selecty').value;
-    if (debug) console.log(200, plotid+'_selectx', quantityx, quantityy);
-    
+    if (debug) console.log(200, plotid + '_selectx', quantityx, quantityy);
+
     for (var s = 0; s < toPlot.series.length; s++) {
         // Prototype.js's Enumerable.zip() is handy here
         var datax = toPlot.series[s].data[quantityx],
@@ -724,23 +887,26 @@ function updateNdPlot(plot, toPlot, plotid, plotid_prefix, create) {
         var serie = new Array();
         if (datax.values) {
             for (var i = 0; i < datax.values.length; i++) {
-                serie[i] = [datax.values[i], datay.values[i], {xerr: get(datax.errors, i), yerr: get(datay.errors, i)}];
+                serie[i] = [datax.values[i], datay.values[i], {
+                    xerr: get(datax.errors, i),
+                    yerr: get(datay.errors, i)
+                }];
             }
         }
-        if (debug) console.log('serie '+s, serie);
+        if (debug) console.log('serie ' + s, serie);
         if (!series[s] || !series[s].hasOwnProperty('data'))
             series[s] = serie;
         else
             series[s].data = serie;
-        
+
         //options.series[s] = { renderer: jQuery.jqplot.errorbarRenderer, rendererOptions: { errorBar: true, /*bodyWidth: 1, wickColor: 'red', openColor: 'yellow', closeColor: 'blue'*/ } };
     }
     if (debug) console.log('series', series, 'options', options);
-    
+
     if (stage == 1) {
         var empty = (series.length == 0);
         if (empty) {
-            series = [[[0,0]]];
+            series = [[[0, 0]]];
             options.series[0].show = false;
         }
         plot = jQuery.jqplot(target_id, series, options);
@@ -748,9 +914,8 @@ function updateNdPlot(plot, toPlot, plotid, plotid_prefix, create) {
         if (empty) {
             options.series[0].show = true;
         }
-        
-    }
-    else {
+
+    } else {
         plot.series.data = series;
         plot.options = options;
         plot.resetAxesScale();
@@ -786,7 +951,7 @@ function create2dPlotRegion(plotid, renderTo) {
     updatebutton.setAttribute('id', plotid + '_update');
     updatebutton.setAttribute('type', 'submit');
     updatebutton.setAttribute('value', 'Update plot');
-    
+
     var colorbar = document.createElement('canvas');
     colorbar.setAttribute('width', 60);
     colorbar.setAttribute('height', 500);
@@ -802,7 +967,7 @@ function create2dPlotRegion(plotid, renderTo) {
     colorbarinvis.setAttribute('class', 'plot-invis plot-colorbar-invis');
     colorbarinvis.hidden = true;
 
-    
+
     divy.appendChild(selecty);
     divx.appendChild(selectx);
     divx.appendChild(updatebutton);
@@ -813,7 +978,6 @@ function create2dPlotRegion(plotid, renderTo) {
     div.appendChild(divx);
     divc.appendChild(invis);
     divc.appendChild(colorbarinvis);
-    
+
     return div;
 }
-

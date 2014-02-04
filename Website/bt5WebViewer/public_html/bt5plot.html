@@ -1,7 +1,7 @@
-
 <!doctype html>
 
 <html lang="en">
+
     <head>
         <meta charset="utf-8" />
         <title>BT5 Data Viewer</title>
@@ -9,11 +9,13 @@
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.css" />
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script> 
         <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot/jquery.jqplot.min.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot/plugins/jqplot.cursor.min.js"></script>
+
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.errorbarRenderer.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.InteractiveLegend.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.FixedAspect.js"></script>
@@ -22,21 +24,24 @@
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.heatmapRenderer.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/plugins/jqplot.colorbarRenderer.js"></script>
 
-        <script type="text/javascript" src="plotting_api2.js"></script>
-        <script src="http://ncnr.nist.gov/instruments/magik/js/geturlvars.js"></script>
-        <!--    <script src="http://ncnr.nist.gov/instruments/magik/sans_data.js"></script>-->
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/interactors/interactors.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/interactors/interactors_plugin_base.js"></script>
         <script type="text/javascript" src="http://ncnr.nist.gov/instruments/magik/jqplot.science/interactors/rectangle_interactor_plugin.js"></script>
+
+        <script src="http://ncnr.nist.gov/instruments/magik/js/geturlvars.js"></script>
+
+        <script src="http://ncnr.nist.gov/instruments/magik/js/jspack.js"></script>
+        <script src="http://ncnr.nist.gov/instruments/magik/js/icpdata.js"></script>
+
+
         <script>
             exports = {}; // compatibility with node scripts
         </script>
-        <script src="http://ncnr.nist.gov/instruments/magik/js/jspack.js"></script>
-        <script src="icpdata.js"></script>
-        <script src="bt5Data.js"></script>
-        <script src="sylvester-min.js"></script>
-        <script src="optimize.js"></script>
-        <script src="gaussian.js"></script>
+        <script type="text/javascript" src="plotting_api2.js"></script>
+        <script type="text/javascript" src="bt5Data.js"></script>
+        <script type="text/javascript" src="sylvester-min.js"></script>
+        <script type="text/javascript" src="optimize.js"></script>
+        <script type="text/javascript" src="gaussian.js"></script>
         <script>
             $(function() {
 
@@ -187,15 +192,16 @@
                     }
                     metatable += "</table>";
                     document.getElementById('metadivsub').innerHTML = metatable;
-                    
+
                     var objLength = dataObj.data.length;
-                    
-                    for (k=0; k< objLength; k++) {
+
+                    for (k = 0; k < objLength; k++) {
                         var offVal = firstData(dataObj.data[k]);
                         console.log(offVal);
-                        for (l=0; l<dataObj.data[k].length; l++) {
-                            newVal = dataObj.data[k][l][0]-offVal;
-                            dataObj.data[k][l][0] = newVal;                        }
+                        for (l = 0; l < dataObj.data[k].length; l++) {
+                            newVal = dataObj.data[k][l][0] - offVal;
+                            dataObj.data[k][l][0] = newVal;
+                        }
                     }
 
                     showSANSData(dataObj);
@@ -528,12 +534,14 @@
             div.patheditor {font-size: 1.4em; }
         </style>
     </head>
+
     <body>
 
         <div id="header" style="background-color:#FFA500;">
-            <h1 style="margin-bottom:0;">ICP data browser</h1></div>
+            <h1 style="margin-bottom:0;">ICP data browser</h1>
+        </div>
         <div id="outer">
-            <div id = navigation></div>
+            <div id=navigation></div>
             <div id="content">
                 <div id="data">
                     <input id="reload_button" type="button" value="Reload">
@@ -551,4 +559,5 @@
         </div>
 
     </body>
+
 </html>
