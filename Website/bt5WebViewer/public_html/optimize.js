@@ -1,7 +1,4 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+//from https://github.com/dfm/optimize.js
 
 window._randNorm = null;
 window.randomNormal = function () {

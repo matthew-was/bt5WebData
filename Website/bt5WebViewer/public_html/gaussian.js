@@ -1,8 +1,4 @@
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+//modified from https://github.com/dfm/optimize.js
 
 
 var firstData = function(data) {

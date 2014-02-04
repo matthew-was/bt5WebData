@@ -1,3 +1,6 @@
+//From Brian Maranville
+//https://github.com/scattering/jqplot.science
+
 var debug = false;
 var prevtype = null;
 var types = { lin: {
