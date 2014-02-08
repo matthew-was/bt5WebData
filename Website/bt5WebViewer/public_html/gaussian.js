@@ -1,14 +1,15 @@
 //modified from https://github.com/dfm/optimize.js
 
 
-var p0, i, x, truth, model = function (a, x) {
+var p0, i, x, truth, 
+    model = function (a, x) {
     'use strict';
     var i, j, result = [],
         sig2 = a[1] * a[1],
         norm,
         diff;
     norm = a[0] / Math.sqrt(2 * Math.PI * sig2);
-
+    
     x = optimize.vector.atleast_1d(x);
     a = optimize.vector.atleast_1d(a);
 
@@ -27,13 +28,15 @@ var p0, i, x, truth, model = function (a, x) {
 
 var do_fit = function (data, medianVal, maxVal) {
     'use strict';
-    var i, p1, chi, chi2, order = window.order, xrange = [-1, 1];
-
-    if (order < 0) {
-        window.order = 0;
-        order = 0;
-    }
-    $("#order").text(window.order);
+    var i, p1, chi, chi2, 
+        //order = window.order, 
+        xrange = [-2, 2];
+        
+ //   if (order < 0) {
+ //       window.order = 0;
+ //       order = 0;
+ //   }
+ //   $("#order").text(window.order);
 
     //if (typeof(p0) === "undefined" || p0 === null) {
     p0 = [maxVal, 0.1, 0.1, medianVal];
@@ -46,7 +49,6 @@ var do_fit = function (data, medianVal, maxVal) {
     //    }
     //}
     //console.log(order, p0.length);
-
     chi = function (p) {
         var i, chi = [];
         if (Math.abs(p[1]) > (xrange[1] - xrange[0]) || p[2] > xrange[1] || p[2] < xrange[0]) {
@@ -70,23 +72,27 @@ var do_fit = function (data, medianVal, maxVal) {
 };
 
 var firstData = function (data) {
-    'use strict';
-
     var objLength = data.length,
         objData = data,
         fitdata = [],
         medianData = [],
+        medianArray = [],
         i,
+        j,
+        k,
         medianVal,
         maxVal,
         offsetVal;
+    
+    k = 0;
     for (i = 0; i < objLength; i += 1) {
         if (objData[i][0] >= -1 && objData[i][0] <= 0.6) {
-            fitdata.push(i);
-            fitdata[i] = {};
-            fitdata[i].x = objData[i][0];
-            fitdata[i].y = objData[i][1];
-            medianData[i] = objData[i][1];
+            fitdata.push(k);
+            fitdata[k] = {};
+            fitdata[k].x = objData[i][0];
+            fitdata[k].y = objData[i][1];
+            medianData[k] = objData[k][1];
+            k += 1;
         }
     }
 
@@ -101,9 +107,15 @@ var firstData = function (data) {
             return (values[half - 1] + values[half]) / 2.0;
         }
     }
+    
+    for (j = 0; j < medianData.length; j += 1) {
+        if (typeof medianData[j] !== "undefined") {
+            medianArray.push(medianData[j]);
+        }
+    }
 
     medianVal = median(medianData);
-    maxVal = Math.max.apply(null, medianData);
+    maxVal = Math.max.apply(Math, medianArray);
     offsetVal = do_fit(fitdata, medianVal, maxVal);
 
     return offsetVal;
